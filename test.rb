@@ -1,4 +1,3 @@
-#!/home/tyler/.rvm/rubies/ruby-3.3.0/bin/ruby
 require_relative 'lexer'
 
 test = """
