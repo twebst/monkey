@@ -1,73 +1,34 @@
 module Token
-
-  PRIMITIVE = [
-    "LPAREN", # (
-    "RPAREN", # )
-    "LBRACE", # [
-    "RBRACE", # ]
-    "LBRACK", # {
-    "RBRACK", # }
-
-    "ASSIGN", # =
-    "EQ", # ==
-    "BANG", # !
-    "NE", # !=
-    "GT", # >
-    "GE", # >=
-    "LT", # <
-    "LE", # <=
-    "PLUS", # +
-    "INC", # ++
-    "MINUS", # -
-    "DEC", # --
-    "ASTERISK", # *
-    "SLASH", # /
-    "COLON", # :
-    "COMMA", # ,
-    "SEMICOLON", # ;
-    
-    # keywords
-    "FN", # function
-    "LET", # let
-    "TRUE", # true
-    "FALSE", # false
-    "IF", # if
-    "ELSE", # else
-    "RETURN", # return
-
-    "ILLEGAL", # unidentified token
-    "EOF", # end-of-file
-  ]
-
-  COMPOSITE = [
-    "ID", # Identifier
-    "INT", # Integer
-    "FLOAT", # Float
-  ]
-
-  private_constant :PRIMITIVE
-  private_constant :COMPOSITE
-
-  PRIMITIVE.each do |type|
-    klass = Class.new do
-      def to_s
-        "#{self.class.to_s.split('::')[-1]}"
-      end
+  class Base
+    def type
+      self.class
     end
-    const_set(type, klass)
+  end
+
+  OPERATORS = %w[ASSIGN EQ BANG NE GT GE LT LE PLUS INC MINUS DEC ASTERISK SLASH COLON]
+  KEYWORDS = %w[FN LET TRUE FALSE IF ELSE RETURN]
+  DELIMITERS = %w[LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA SEMICOLON]
+  SPECIAL = %w[EOF]
+  COMPOSITE = %w[ID INT FLOAT ILLEGAL]
+
+  private_constant :OPERATORS, :KEYWORDS, :DELIMITERS, :SPECIAL, :COMPOSITE
+
+  [OPERATORS, KEYWORDS, SPECIAL, DELIMITERS].each do |types|
+    types.each do |type|
+      klass = Class.new(Base) do
+        define_method(:to_s) { "#{type}" }
+      end
+
+      const_set(type, klass)
+    end
   end
 
   COMPOSITE.each do |type|
-    klass = Class.new do
+    klass = Class.new(Base) do
       attr_reader :value
 
-      def initialize(value)
-        @value = value
-      end
-
-      def to_s
-        "#{self.class.to_s.split('::')[-1]}(#{value})"
-      end
+      define_method(:initialize) { |value| @value = value }
+      define_method(:to_s) { "#{type}(#{value})" }
     end
     const_set(type, klass)
   end
